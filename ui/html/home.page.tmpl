@@ -1,0 +1,20 @@
+{{template "base" .}}
+
+{{define "title"}}Home{{end}}
+
+{{define "main"}}<h2>Latest Posts</h2>
+    {{if .Snippets}}
+    <table>
+        <tr><th>Title</th><th>Created</th><th>ID</th></tr>
+        {{range .Snippets}}
+        <tr>
+            <td><a href="/show?id={{.ID}}">{{.Title}}</a></td>
+            <td>{{.Created.Format "2006-01-02 15:04:05"}}</td>
+            <td>{{.ID}}</td>
+        </tr>
+        {{end}}
+    </table>
+    {{else}}
+        <p>There&rsquo;s nothing to see here yet!</p>
+    {{end}}
+{{end}}
