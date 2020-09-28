@@ -63,18 +63,17 @@ func main() {
 	}
 
 	srv := &http.Server{
-		Addr:              addr,
-		ErrorLog:          errorLog,
-		Handler:           app.routes(),
-		IdleTimeout:       60 * time.Second,
-		ReadTimeout:       10 * time.Second,
-		ReadHeaderTimeout: 10 * time.Second,
-		WriteTimeout:      10 * time.Second,
+		Addr:         addr,
+		ErrorLog:     errorLog,
+		Handler:      app.routes(),
+		IdleTimeout:  60 * time.Second,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	go func() {
 		infoLog.Println("Starting server on", addr)
-		err = srv.ListenAndServe()
+		err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 		if errors.Is(err, http.ErrServerClosed) {
 			infoLog.Println(err)
 		} else {
