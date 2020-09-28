@@ -1,10 +1,21 @@
 package main
 
-import "github.com/etitcombe/groupics/pkg/models"
+import (
+	"net/url"
+
+	"github.com/etitcombe/groupics/pkg/models"
+)
 
 type viewModel struct {
 	Year int
 }
+
+type createViewModel struct {
+	viewModel
+	FormData   url.Values
+	FormErrors map[string]string
+}
+
 type homeViewModel struct {
 	viewModel
 	Snippets []*models.Snippet

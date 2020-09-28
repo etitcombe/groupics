@@ -173,6 +173,7 @@ form input[type="radio"] {
     position: relative;
     top: 2px;
     margin-left: 18px;
+    margin-right: 9px; /* ET */
 }
 
 form input[type="text"], form input[type="password"], form input[type="email"] {

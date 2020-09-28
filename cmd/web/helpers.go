@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"path/filepath"
 	"runtime/debug"
@@ -78,12 +77,18 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 func (app *application) addDefaultData(r *http.Request, data interface{}) interface{} {
 	switch vm := data.(type) {
 	default:
-		log.Println("yo")
+		app.infoLog.Println("addDefaultData: data is not a viewModel, yo")
 		return data
+	case createViewModel:
+		vm.Year = time.Now().Year()
+		return vm
 	case homeViewModel:
 		vm.Year = time.Now().Year()
 		return vm
 	case showViewModel:
+		vm.Year = time.Now().Year()
+		return vm
+	case viewModel:
 		vm.Year = time.Now().Year()
 		return vm
 	}
