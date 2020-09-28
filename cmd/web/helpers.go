@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"path/filepath"
 	"runtime/debug"
+	"time"
 )
 
 func (app *application) clientError(w http.ResponseWriter, status int) {
@@ -64,11 +66,25 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 
 	buf := bytes.Buffer{}
 
-	err := ts.Execute(&buf, data)
+	err := ts.Execute(&buf, app.addDefaultData(r, data))
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 
 	buf.WriteTo(w)
+}
+
+func (app *application) addDefaultData(r *http.Request, data interface{}) interface{} {
+	switch vm := data.(type) {
+	default:
+		log.Println("yo")
+		return data
+	case homeViewModel:
+		vm.Year = time.Now().Year()
+		return vm
+	case showViewModel:
+		vm.Year = time.Now().Year()
+		return vm
+	}
 }

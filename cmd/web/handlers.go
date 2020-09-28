@@ -10,10 +10,11 @@ import (
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
-	}
+	// Not needed when using pat
+	// if r.URL.Path != "/" {
+	// 	http.NotFound(w, r)
+	// 	return
+	// }
 
 	snippets, err := app.snippetStore.Latest()
 	if err != nil {
@@ -26,7 +27,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) show(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
 	if err != nil || id < 1 {
 		app.notFound(w)
 		return
@@ -47,11 +48,12 @@ func (app *application) show(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) create(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost)
-		app.clientError(w, http.StatusMethodNotAllowed)
-		return
-	}
+	// Not needed when using pat
+	// if r.Method != http.MethodPost {
+	// 	w.Header().Set("Allow", http.MethodPost)
+	// 	app.clientError(w, http.StatusMethodNotAllowed)
+	// 	return
+	// }
 
 	title := "O snail"
 	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi Issa"
@@ -63,7 +65,11 @@ func (app *application) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/show?id=%d", id), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/show/%d", id), http.StatusSeeOther)
+}
+
+func (app *application) createForm(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "yo yo yo")
 }
 
 func (app *application) refresh(w http.ResponseWriter, r *http.Request) {

@@ -8,7 +8,7 @@
         <tr><th>Title</th><th>Created</th><th>ID</th></tr>
         {{range .Snippets}}
         <tr>
-            <td><a href="/show?id={{.ID}}">{{.Title}}</a></td>
+            <td><a href="/show/{{.ID}}">{{.Title}}</a></td>
             <td>{{.Created.Format "2006-01-02 15:04:05"}}</td>
             <td>{{.ID}}</td>
         </tr>
