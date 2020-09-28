@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
-	"unicode/utf8"
 
+	"github.com/etitcombe/groupics/pkg/forms"
 	"github.com/etitcombe/groupics/pkg/models"
 )
 
@@ -63,45 +62,19 @@ func (app *application) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	title := r.PostForm.Get("title")
-	content := r.PostForm.Get("content")
-	expiresValue := r.PostForm.Get("expires")
+	form := forms.New(r.PostForm)
+	form.Required("title", "content", "expires")
+	form.MaxLength("title", 100)
+	form.PermittedValues("expires", "365", "7", "1")
 
-	errors := make(map[string]string)
-
-	if strings.TrimSpace(title) == "" {
-		errors["title"] = "This field cannot be blank"
-	} else if utf8.RuneCountInString(title) > 100 {
-		errors["title"] = "This field is too long (maximum is 100 characters)"
-	}
-
-	if strings.TrimSpace(content) == "" {
-		errors["content"] = "This field cannot be blank"
-	}
-
-	var expires int
-
-	if strings.TrimSpace(expiresValue) == "" {
-		errors["expires"] = "This field cannot be blank"
-	} else {
-		expires, err = strconv.Atoi(expiresValue)
-		if err != nil {
-			errors["expires"] = "This field must be an integer"
-		} else {
-			if expires != 365 && expires != 7 && expires != 1 {
-				errors["expires"] = "This field is invalid (only 365, 7, or 1 allowed)"
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		vm := createViewModel{
-			FormData:   r.PostForm,
-			FormErrors: errors,
-		}
-		app.render(w, r, "create.page.tmpl", vm)
+	if !form.Valid() {
+		app.render(w, r, "create.page.tmpl", createViewModel{Form: form})
 		return
 	}
+
+	title := form.Get("title")
+	content := form.Get("content")
+	expires, _ := strconv.Atoi(form.Get("expires")) // We can ignore the error because we've already validated the value of the field.
 
 	id, err := app.snippetStore.Insert(title, content, expires)
 	if err != nil {
@@ -113,7 +86,7 @@ func (app *application) create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) createForm(w http.ResponseWriter, r *http.Request) {
-	app.render(w, r, "create.page.tmpl", createViewModel{})
+	app.render(w, r, "create.page.tmpl", createViewModel{Form: forms.New(nil)})
 }
 
 func (app *application) refresh(w http.ResponseWriter, r *http.Request) {

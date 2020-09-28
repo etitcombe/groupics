@@ -1,8 +1,7 @@
 package main
 
 import (
-	"net/url"
-
+	"github.com/etitcombe/groupics/pkg/forms"
 	"github.com/etitcombe/groupics/pkg/models"
 )
 
@@ -12,8 +11,7 @@ type viewModel struct {
 
 type createViewModel struct {
 	viewModel
-	FormData   url.Values
-	FormErrors map[string]string
+	Form *forms.Form
 }
 
 type homeViewModel struct {
