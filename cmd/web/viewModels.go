@@ -6,7 +6,8 @@ import (
 )
 
 type viewModel struct {
-	Year int
+	Flash string
+	Year  int
 }
 
 type createViewModel struct {

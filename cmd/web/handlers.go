@@ -27,27 +27,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "home.page.tmpl", data)
 }
 
-func (app *application) show(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
-	if err != nil || id < 1 {
-		app.notFound(w)
-		return
-	}
-
-	s, err := app.snippetStore.Get(id)
-	if err != nil {
-		if errors.Is(err, models.ErrNoRecord) {
-			app.notFound(w)
-		} else {
-			app.serverError(w, err)
-		}
-		return
-	}
-
-	data := showViewModel{Snippet: s}
-	app.render(w, r, "show.page.tmpl", data)
-}
-
 func (app *application) create(w http.ResponseWriter, r *http.Request) {
 	// Not needed when using pat
 	// if r.Method != http.MethodPost {
@@ -82,6 +61,8 @@ func (app *application) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	app.session.Put(r, "flash", "Created successfully!")
+
 	http.Redirect(w, r, fmt.Sprintf("/show/%d", id), http.StatusSeeOther)
 }
 
@@ -96,4 +77,25 @@ func (app *application) refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (app *application) show(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
+	if err != nil || id < 1 {
+		app.notFound(w)
+		return
+	}
+
+	s, err := app.snippetStore.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	data := showViewModel{Snippet: s}
+	app.render(w, r, "show.page.tmpl", data)
 }

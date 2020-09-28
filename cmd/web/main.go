@@ -15,12 +15,14 @@ import (
 	"time"
 
 	"github.com/etitcombe/groupics/pkg/models/postgres"
+	"github.com/golangcollege/sessions"
 	_ "github.com/lib/pq"
 )
 
 type application struct {
 	errorLog      *log.Logger
 	infoLog       *log.Logger
+	session       *sessions.Session
 	snippetStore  *postgres.SnippetStore
 	templateCache map[string]*template.Template
 	templateDir   string
@@ -32,6 +34,8 @@ func main() {
 	var dbHost, dbPassword string
 	flag.StringVar(&dbHost, "dbhost", "localhost", "database host")
 	flag.StringVar(&dbPassword, "dbpassword", "", "database password")
+	var secret string
+	flag.StringVar(&secret, "secret", "s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge", "secret key")
 	flag.Parse()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
@@ -43,9 +47,13 @@ func main() {
 	}
 	defer db.Close()
 
+	session := sessions.New([]byte(secret))
+	session.Lifetime = 12 * time.Hour
+
 	app := &application{
 		errorLog:     errorLog,
 		infoLog:      infoLog,
+		session:      session,
 		snippetStore: &postgres.SnippetStore{DB: db},
 		templateDir:  "./ui/html/",
 	}
