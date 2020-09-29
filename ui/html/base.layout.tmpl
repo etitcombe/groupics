@@ -14,12 +14,15 @@
         <nav>
             <div>
                 <a href="/">Home</a>
-                <a href="/create">Create</a>
+                {{if .IsAuthenticated}}<a href="/create">Create</a>{{end}}
             </div>
             <div>
+            {{if .IsAuthenticated}}
+                <form action="/logout" method="post"><button>Logout</button></form>
+            {{else}}
                 <a href="/signup">Signup</a>
                 <a href="/login">Login</a>
-                <form action="/logout" method="post"><button>Logout</button></form>
+            {{end}}
             </div>
         </nav>
         <main>

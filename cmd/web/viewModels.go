@@ -8,8 +8,9 @@ import (
 )
 
 type viewModel struct {
-	Flash template.HTML
-	Year  int
+	Flash           template.HTML
+	IsAuthenticated bool
+	Year            int
 }
 
 type createViewModel struct {

@@ -14,6 +14,10 @@ func (app *application) clientError(w http.ResponseWriter, status int) {
 	http.Error(w, http.StatusText(status), status)
 }
 
+func (app *application) isAuthenticated(r *http.Request) bool {
+	return app.session.Exists(r, "authenticatedUserID")
+}
+
 func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }
@@ -81,18 +85,22 @@ func (app *application) addDefaultData(r *http.Request, data interface{}) interf
 		return data
 	case createViewModel:
 		vm.Flash = template.HTML(app.session.PopString(r, "flash"))
+		vm.IsAuthenticated = app.isAuthenticated(r)
 		vm.Year = time.Now().Year()
 		return vm
 	case homeViewModel:
 		vm.Flash = template.HTML(app.session.PopString(r, "flash"))
+		vm.IsAuthenticated = app.isAuthenticated(r)
 		vm.Year = time.Now().Year()
 		return vm
 	case showViewModel:
 		vm.Flash = template.HTML(app.session.PopString(r, "flash"))
+		vm.IsAuthenticated = app.isAuthenticated(r)
 		vm.Year = time.Now().Year()
 		return vm
 	case viewModel:
 		vm.Flash = template.HTML(app.session.PopString(r, "flash"))
+		vm.IsAuthenticated = app.isAuthenticated(r)
 		vm.Year = time.Now().Year()
 		return vm
 	}
