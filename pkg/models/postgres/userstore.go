@@ -40,7 +40,18 @@ func (s *UserStore) Authenticate(email, password string) (int, error) {
 
 // Get returns a user based on id.
 func (s *UserStore) Get(id int) (*models.User, error) {
-	return nil, nil
+	var u models.User
+	stmt := "SELECT \"name\", email, created, active " +
+		"FROM \"user\" WHERE id = $1"
+	err := s.DB.QueryRow(stmt, id).Scan(&u.Name, &u.Email, &u.Created, &u.Active)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrNoRecord
+		}
+		return nil, err
+	}
+	u.ID = id
+	return &u, nil
 }
 
 // Insert creates a record.

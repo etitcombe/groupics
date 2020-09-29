@@ -30,6 +30,10 @@ type application struct {
 	templateDir   string
 }
 
+type contextKey string
+
+const contextKeyIsAuthenticated = contextKey("isAuthenticated")
+
 func main() {
 	var addr string
 	flag.StringVar(&addr, "addr", ":4000", "HTTP network address")
@@ -57,7 +61,7 @@ func main() {
 		errorLog.Fatal(err)
 	}
 
-	session := sessions.New(secretBytes, []byte("s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge"))
+	session := sessions.New(secretBytes)
 	session.Lifetime = 12 * time.Hour
 	session.Secure = true
 
