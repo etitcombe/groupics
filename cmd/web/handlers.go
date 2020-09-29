@@ -70,6 +70,55 @@ func (app *application) createForm(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "create.page.tmpl", createViewModel{Form: forms.New(nil)})
 }
 
+func (app *application) login(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "login")
+}
+func (app *application) loginForm(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "loginForm")
+}
+func (app *application) logout(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "logout")
+}
+
+func (app *application) signup(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form := forms.New(r.PostForm)
+	form.Required("name", "email", "password")
+	form.MaxLength("name", 255)
+	form.MaxLength("email", 255)
+	form.MatchesPattern("email", forms.EmailRX)
+	form.MinLength("password", 10)
+
+	if !form.Valid() {
+		app.render(w, r, "signup.page.tmpl", createViewModel{Form: form})
+		return
+	}
+
+	err = app.userStore.Insert(form.Get("name"), form.Get("email"), form.Get("password"))
+	if err != nil {
+		if errors.Is(err, models.ErrDuplicateEmail) {
+			form.Errors.Add("email", "Address is already in use")
+			app.render(w, r, "signup.page.tmpl", createViewModel{Form: form})
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	app.session.Put(r, "flash", "Your signup was successful. Please log in.")
+
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
+}
+
+func (app *application) signupForm(w http.ResponseWriter, r *http.Request) {
+	app.render(w, r, "signup.page.tmpl", createViewModel{Form: forms.New(nil)})
+}
+
 func (app *application) refresh(w http.ResponseWriter, r *http.Request) {
 	err := app.parseTemplates()
 	if err != nil {

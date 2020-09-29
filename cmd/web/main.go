@@ -24,6 +24,7 @@ type application struct {
 	infoLog       *log.Logger
 	session       *sessions.Session
 	snippetStore  *postgres.SnippetStore
+	userStore     *postgres.UserStore
 	templateCache map[string]*template.Template
 	templateDir   string
 }
@@ -49,12 +50,14 @@ func main() {
 
 	session := sessions.New([]byte(secret))
 	session.Lifetime = 12 * time.Hour
+	session.Secure = true
 
 	app := &application{
 		errorLog:     errorLog,
 		infoLog:      infoLog,
 		session:      session,
 		snippetStore: &postgres.SnippetStore{DB: db},
+		userStore:    &postgres.UserStore{DB: db},
 		templateDir:  "./ui/html/",
 	}
 	err = app.parseTemplates()

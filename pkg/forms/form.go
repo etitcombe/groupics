@@ -3,9 +3,13 @@ package forms
 import (
 	"fmt"
 	"net/url"
+	"regexp"
 	"strings"
 	"unicode/utf8"
 )
+
+// EmailRX is the regular expression used to validate email addresses.
+var EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
 // Form represents an HTML form.
 type Form struct {
@@ -22,13 +26,14 @@ func New(data url.Values) *Form {
 	}
 }
 
-// Required checks each element of field and adds an error if its value is empty.
-func (f *Form) Required(fields ...string) {
-	for _, field := range fields {
-		value := f.Get(field)
-		if strings.TrimSpace(value) == "" {
-			f.Errors.Add(field, "This field cannot be blank")
-		}
+// MatchesPattern verifies that the value of field matches pattern.
+func (f *Form) MatchesPattern(field string, pattern *regexp.Regexp) {
+	value := f.Get(field)
+	if value == "" {
+		return
+	}
+	if !pattern.MatchString(value) {
+		f.Errors.Add(field, "This field is invalid")
 	}
 }
 
@@ -40,6 +45,17 @@ func (f *Form) MaxLength(field string, d int) {
 	}
 	if utf8.RuneCountInString(value) > d {
 		f.Errors.Add(field, fmt.Sprintf("This field is too long (maximum is %d characters)", d))
+	}
+}
+
+// MinLength checks field for length d. If it is shorter it adds an error.
+func (f *Form) MinLength(field string, d int) {
+	value := f.Get(field)
+	if value == "" {
+		return
+	}
+	if utf8.RuneCountInString(value) < d {
+		f.Errors.Add(field, fmt.Sprintf("This field is too short (minimum is %d characters)", d))
 	}
 }
 
@@ -56,6 +72,16 @@ func (f *Form) PermittedValues(field string, opts ...string) {
 		}
 	}
 	f.Errors.Add(field, "This field is invalid")
+}
+
+// Required checks each element of field and adds an error if its value is empty.
+func (f *Form) Required(fields ...string) {
+	for _, field := range fields {
+		value := f.Get(field)
+		if strings.TrimSpace(value) == "" {
+			f.Errors.Add(field, "This field cannot be blank")
+		}
+	}
 }
 
 // Valid returns true if there are no errors, otherwise false.
