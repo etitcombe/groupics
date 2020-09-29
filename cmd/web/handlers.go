@@ -71,13 +71,49 @@ func (app *application) createForm(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) login(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "login")
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form := forms.New(r.PostForm)
+	form.Required("email", "password")
+	form.MaxLength("email", 255)
+	form.MatchesPattern("email", forms.EmailRX)
+	form.MinLength("password", 10)
+
+	if !form.Valid() {
+		app.render(w, r, "login.page.tmpl", createViewModel{Form: form})
+		return
+	}
+
+	id, err := app.userStore.Authenticate(form.Get("email"), form.Get("password"))
+	if err != nil {
+		if errors.Is(err, models.ErrInvalidCredentials) {
+			form.Errors.Add("generic", "Email or password is incorrect")
+			app.render(w, r, "login.page.tmpl", createViewModel{Form: form})
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	app.session.Put(r, "authenticatedUserID", id)
+
+	http.Redirect(w, r, "/create", http.StatusSeeOther)
 }
+
 func (app *application) loginForm(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "loginForm")
+	app.render(w, r, "login.page.tmpl", createViewModel{Form: forms.New(nil)})
 }
+
 func (app *application) logout(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "logout")
+	app.session.Remove(r, "authenticatedUserID")
+
+	app.session.Put(r, "flash", "You&rsquo;ve been logged out successfully")
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func (app *application) signup(w http.ResponseWriter, r *http.Request) {

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/base64"
 	"errors"
 	"flag"
 	"fmt"
@@ -36,7 +37,7 @@ func main() {
 	flag.StringVar(&dbHost, "dbhost", "localhost", "database host")
 	flag.StringVar(&dbPassword, "dbpassword", "", "database password")
 	var secret string
-	flag.StringVar(&secret, "secret", "s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge", "secret key")
+	flag.StringVar(&secret, "secret", "", "secret key (base64 URL-encoded)")
 	flag.Parse()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
@@ -48,7 +49,15 @@ func main() {
 	}
 	defer db.Close()
 
-	session := sessions.New([]byte(secret))
+	if secret == "" {
+		secret = "gIjJT1zsGLN_KKmuEM0o7Bp-wFy9W8YK5FZRnFh7BVM=" // got this value from rand.RememberToken in exp
+	}
+	secretBytes, err := base64.URLEncoding.DecodeString(secret)
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
+	session := sessions.New(secretBytes, []byte("s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge"))
 	session.Lifetime = 12 * time.Hour
 	session.Secure = true
 

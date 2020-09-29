@@ -14,9 +14,28 @@ type UserStore struct {
 	DB *sql.DB
 }
 
-// Authenticate checks the email and password.
+// Authenticate checks the for an active user with the given email and password.
 func (s *UserStore) Authenticate(email, password string) (int, error) {
-	return 0, nil
+	var id int
+	var hashedPassword []byte
+	stmt := "SELECT id, hashed_password FROM \"user\" WHERE email = $1 AND active = true"
+	err := s.DB.QueryRow(stmt, email).Scan(&id, &hashedPassword)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, models.ErrInvalidCredentials
+		}
+		return 0, err
+	}
+
+	err = bcrypt.CompareHashAndPassword(hashedPassword, []byte(password))
+	if err != nil {
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			return 0, models.ErrInvalidCredentials
+		}
+		return 0, err
+	}
+
+	return id, nil
 }
 
 // Get returns a user based on id.

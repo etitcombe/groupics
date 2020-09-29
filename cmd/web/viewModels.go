@@ -1,12 +1,14 @@
 package main
 
 import (
+	"html/template"
+
 	"github.com/etitcombe/groupics/pkg/forms"
 	"github.com/etitcombe/groupics/pkg/models"
 )
 
 type viewModel struct {
-	Flash string
+	Flash template.HTML
 	Year  int
 }
 
