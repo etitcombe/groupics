@@ -3,7 +3,8 @@
 {{define "title"}}Create{{end}}
 
 {{define "main"}}
-<form action="/create" method="POST">{{with .Form}}
+<form action="/create" method="POST">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">{{with .Form}}
     <div>
         <label>Title:</label>
         {{with .Errors.Get "title"}}<label class="error">{{.}}</label>{{end}}

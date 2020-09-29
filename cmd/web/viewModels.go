@@ -8,6 +8,7 @@ import (
 )
 
 type viewModel struct {
+	CSRFToken       string
 	Flash           template.HTML
 	IsAuthenticated bool
 	Year            int
