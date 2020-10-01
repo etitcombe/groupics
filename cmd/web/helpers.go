@@ -12,6 +12,38 @@ import (
 	"github.com/justinas/nosurf"
 )
 
+func (app *application) addDefaultData(r *http.Request, data interface{}) interface{} {
+	switch vm := data.(type) {
+	default:
+		app.infoLog.Println("addDefaultData: data is not a viewModel, yo")
+		return data
+	case createViewModel:
+		vm.CSRFToken = nosurf.Token(r)
+		vm.Flash = template.HTML(app.session.PopString(r, "flash"))
+		vm.IsAuthenticated = app.isAuthenticated(r)
+		vm.Year = time.Now().Year()
+		return vm
+	case homeViewModel:
+		vm.CSRFToken = nosurf.Token(r)
+		vm.Flash = template.HTML(app.session.PopString(r, "flash"))
+		vm.IsAuthenticated = app.isAuthenticated(r)
+		vm.Year = time.Now().Year()
+		return vm
+	case showViewModel:
+		vm.CSRFToken = nosurf.Token(r)
+		vm.Flash = template.HTML(app.session.PopString(r, "flash"))
+		vm.IsAuthenticated = app.isAuthenticated(r)
+		vm.Year = time.Now().Year()
+		return vm
+	case viewModel:
+		vm.CSRFToken = nosurf.Token(r)
+		vm.Flash = template.HTML(app.session.PopString(r, "flash"))
+		vm.IsAuthenticated = app.isAuthenticated(r)
+		vm.Year = time.Now().Year()
+		return vm
+	}
+}
+
 func (app *application) clientError(w http.ResponseWriter, status int) {
 	http.Error(w, http.StatusText(status), status)
 }
@@ -26,13 +58,6 @@ func (app *application) isAuthenticated(r *http.Request) bool {
 
 func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
-}
-
-func (app *application) serverError(w http.ResponseWriter, err error) {
-	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
-	app.errorLog.Output(2, trace)
-
-	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }
 
 func (app *application) parseTemplates() error {
@@ -84,34 +109,9 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 	buf.WriteTo(w)
 }
 
-func (app *application) addDefaultData(r *http.Request, data interface{}) interface{} {
-	switch vm := data.(type) {
-	default:
-		app.infoLog.Println("addDefaultData: data is not a viewModel, yo")
-		return data
-	case createViewModel:
-		vm.CSRFToken = nosurf.Token(r)
-		vm.Flash = template.HTML(app.session.PopString(r, "flash"))
-		vm.IsAuthenticated = app.isAuthenticated(r)
-		vm.Year = time.Now().Year()
-		return vm
-	case homeViewModel:
-		vm.CSRFToken = nosurf.Token(r)
-		vm.Flash = template.HTML(app.session.PopString(r, "flash"))
-		vm.IsAuthenticated = app.isAuthenticated(r)
-		vm.Year = time.Now().Year()
-		return vm
-	case showViewModel:
-		vm.CSRFToken = nosurf.Token(r)
-		vm.Flash = template.HTML(app.session.PopString(r, "flash"))
-		vm.IsAuthenticated = app.isAuthenticated(r)
-		vm.Year = time.Now().Year()
-		return vm
-	case viewModel:
-		vm.CSRFToken = nosurf.Token(r)
-		vm.Flash = template.HTML(app.session.PopString(r, "flash"))
-		vm.IsAuthenticated = app.isAuthenticated(r)
-		vm.Year = time.Now().Year()
-		return vm
-	}
+func (app *application) serverError(w http.ResponseWriter, err error) {
+	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
+	app.errorLog.Output(2, trace)
+
+	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }

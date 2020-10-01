@@ -15,17 +15,26 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/etitcombe/groupics/pkg/models"
 	"github.com/etitcombe/groupics/pkg/models/postgres"
 	"github.com/golangcollege/sessions"
 	_ "github.com/lib/pq"
 )
 
 type application struct {
-	errorLog      *log.Logger
-	infoLog       *log.Logger
-	session       *sessions.Session
-	snippetStore  *postgres.SnippetStore
-	userStore     *postgres.UserStore
+	errorLog     *log.Logger
+	infoLog      *log.Logger
+	session      *sessions.Session
+	snippetStore interface {
+		Get(int) (*models.Snippet, error)
+		Insert(string, string, int) (int, error)
+		Latest() ([]*models.Snippet, error)
+	}
+	userStore interface {
+		Authenticate(string, string) (int, error)
+		Get(int) (*models.User, error)
+		Insert(string, string, string) error
+	}
 	templateCache map[string]*template.Template
 	templateDir   string
 }

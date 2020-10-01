@@ -184,3 +184,7 @@ func (app *application) show(w http.ResponseWriter, r *http.Request) {
 	data := showViewModel{Snippet: s}
 	app.render(w, r, "show.page.tmpl", data)
 }
+
+func ping(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("OK"))
+}

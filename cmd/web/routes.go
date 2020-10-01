@@ -14,6 +14,7 @@ func (app *application) routes() http.Handler {
 	mux.Get("/login", app.session.Enable(app.noSurf(http.HandlerFunc(app.loginForm))))
 	mux.Post("/login", app.session.Enable(app.noSurf(http.HandlerFunc(app.login))))
 	mux.Post("/logout", app.session.Enable(app.authenticate(app.requireAuthentication(app.noSurf(http.HandlerFunc(app.logout))))))
+	mux.Get("/ping", http.HandlerFunc(ping))
 	mux.Get("/refresh", app.session.Enable(app.authenticate(app.requireAuthentication(app.noSurf(http.HandlerFunc(app.refresh))))))
 	mux.Get("/show/:id", app.session.Enable(app.noSurf(http.HandlerFunc(app.show))))
 	mux.Get("/signup", app.session.Enable(app.noSurf(http.HandlerFunc(app.signupForm))))
