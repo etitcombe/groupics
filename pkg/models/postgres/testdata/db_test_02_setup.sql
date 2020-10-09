@@ -25,9 +25,30 @@ CREATE TABLE public.user
 )
 TABLESPACE pg_default;
 
+INSERT INTO public.snippet (title, content, created, expires) VALUES (
+    'Snippet Title',
+    'Snippet Content Has More Text',
+    '2020-10-01 10:50:00',
+    NOW() + INTERVAL '7 day'
+);
+
+INSERT INTO public.snippet (title, content, created, expires) VALUES (
+    'Snippet Title 2',
+    'Snippet Content Has More Text 2',
+    '2020-10-02 10:50:00',
+    NOW() + INTERVAL '7 day'
+);
+
+INSERT INTO public.snippet (title, content, created, expires) VALUES (
+    'Snippet Title 3',
+    'Snippet Content Has More Text 3',
+    '2020-10-03 10:50:00',
+    NOW() + INTERVAL '7 day'
+);
+
 INSERT INTO public.user (name, email, hashed_password, created) VALUES (
     'Alice Jones',
     'alice@example.com',
-    '$2a$12$NuTjWXm3KKntReFwyBVHyuf/to.HEwTy.eS206TNfkGfr6HzGJSWG',
+    '$2a$12$Zs0l8hKzpL7P8yJXgwsPf.u7N2e7poHzXNTNY6XPZdL029vnVdnJO',
     '2020-10-01 10:50:00'
 );
