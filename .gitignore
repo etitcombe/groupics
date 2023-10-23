@@ -13,5 +13,6 @@
 
 *.log
 
+cmd/exp/
 tls/
 groupics
